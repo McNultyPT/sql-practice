@@ -10,13 +10,22 @@ const port = 8500;
 server.use(express.json());
 
 server.get('/project/:id', (req, res) => {
-    //query the projects table to get a specific project
-    
-    //query the actions table to get all actions associated with that specific project
-    
-    //add the actions onto the project -> project.actions = actions
-   
-    //res
+    const id = req.params.id;
+
+   db('projects')
+     .where({ id })
+     .first()
+     .then(project => {
+        db('actions')
+            .where({ 'project_id': id })
+            .then(actions => {
+                project.actions = actions;
+                res.status(200).json(project)
+            }) 
+     })
+     .catch(() => {
+         res.status(500).json({ error: 'error'})
+     });
 });
 
 server.listen(port, () => console.log(`\nAPI running on http://localhost:${port}\n`));
